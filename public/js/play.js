@@ -2,8 +2,10 @@
 const roomCode = document.getElementById('roomCode').innerHTML
 const admin = document.getElementById('admin').innerHTML
 var playCorner = document.getElementById('playCorner'); 
-if(admin=='true')
+if(admin=='true'){
   document.getElementById('doit').style.visibility = 'hidden'
+  document.getElementById('startSame').style.visibility = 'hidden'
+}
 
 //Glabal Variables
 var turn,username,myrank,count = 0,totalCards=0;
@@ -81,8 +83,11 @@ var invite = document.getElementById('invite').innerHTML = "Invitation Link : " 
 //Start fuction (only for admin) to start the game
 function start(){
   document.getElementById('start').style.visibility = 'hidden'
+  document.getElementById('startSame').style.visibility = 'hidden'
   if(admin=='true')
+  {
     document.getElementById('doit').style.visibility = 'visible'
+  }
   socket.emit('start');
   setTimeout(askTurn, 3000 );
 }
@@ -115,6 +120,7 @@ socket.on('sendData',data=>{
               console.log(check,suit)
               var suitIndex = suit.length - 1
               var checkIndex = check.length - 1
+              console.log(suitIndex,checkIndex)
               if(check[checkIndex]!=suit[suitIndex] && counterSuit[check[checkIndex]] != 0)
                 return;
             }
@@ -196,8 +202,10 @@ socket.on('clearBoard',()=>{
 //Asking user for next turn
 function doit(){
   --totalCards;
+  check = 0;
   if(totalCards == 0){
     clearEverything();
+    socket.emit('clearAll');
     return;
   }
   socket.emit('clear');
@@ -221,8 +229,12 @@ function clearEverything(){
   count = 0;
   totalCards = 0;
   turn = "";
-  document.getElementById('start').style.visibility = 'visible'
-  
+
+  if(admin=='true'){
+    document.getElementById('start').style.visibility = 'visible'
+    document.getElementById('doit').style.visibility = 'hidden'
+    document.getElementById('startSame').style.visibility = 'visible'
+  }
 }
 
 //Send scoreboard
@@ -242,4 +254,16 @@ socket.on('recScore',score=>{
     console.log(score[playerNames[i]]);
     document.getElementById('score'+playerNames[i]).innerHTML = (score[playerNames[i]]).toString(10);
   }
+})
+
+//Clear Scoreboard
+function clearScoreboard(){
+  for(i=0;i<playerNames.length;++i)
+    score[playerNames[i]] = 0;
+  socket.emit('sendScore',score);
+  start();
+}
+
+socket.on('clearEverything',()=>{
+  clearEverything();
 })

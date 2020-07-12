@@ -118,6 +118,10 @@ io.on('connection',(socket=>{
     io.in(socket.roomCode).emit('recScore',data);
   })
 
+  socket.on('clearAll',()=>{
+    io.in(socket.roomCode).emit('clearEverything');
+  })
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
     var index;

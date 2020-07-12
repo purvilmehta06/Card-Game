@@ -51,11 +51,6 @@ img:hover{
   transform: translateY(-30px);
   cursor: pointer;
 }
-#start{
-  left: 50%;
-  top: 10%;
-  position: absolute;
-}
 
 .left .container{
   bottom: 10px;
@@ -83,4 +78,7 @@ input[type=number] {
   margin:10px;
   align-items: center;
   left: 50%;
+}
+button{
+  margin:5px;
 }
