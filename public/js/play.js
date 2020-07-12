@@ -52,8 +52,6 @@ socket.on('sendData',data=>{
   if(admin == "false")
     document.getElementById('waitingMsg').style.visibility = 'hidden'
   var imgStack = document.getElementById('imgStack');
-  //- for(var i=0;i<13;++i)
-  //- {
 
   counterSuit[data.suit]++;
 
@@ -64,12 +62,6 @@ socket.on('sendData',data=>{
   elem.setAttribute('id',i);
   imgStack.appendChild(elem); 
   document.getElementById(i).style.margin = "0 0 0 "+ (-100)+"px";
-
-  //- }
-  //- var td;
-  //- for (var t = 0; t < 13; t++){
-    
-  //- }
   td = document.getElementById(i);
   if (typeof window.addEventListener === 'function'){
     (function (_td) {

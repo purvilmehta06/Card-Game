@@ -1,3 +1,4 @@
+//Required files call up
 var express = require('express');
 var path = require("path");
 var socket = require('socket.io');
@@ -5,29 +6,28 @@ var app = express();
 const bodyParser = require('body-parser')
 const http = require('http');
 var uuid = require('uuid');
+
+//Settingup the environment variables
 app.use(express.static(path.join(__dirname, 'public')));
-// parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set('views',path.join(__dirname,'views'));
 app.set('view engine','pug')
-// parse application/json
 app.use(bodyParser.json());
-
-// Socket.io integration with express
 const server = http.createServer(app);
-
-// Creating the socket
 const io = socket(server);
 
+//Defining global variables
 var roomCode = [];
 var playerName = [];
 maxCount = [];
 playerCount = [];
 
+//Main page render
 app.get('/',(req,res)=>{
   res.render('main');
 })
 
+//Handle join game request
 app.post('/joingame',(req,res)=>{
   var room = uuid.v4()
   roomCode.push(room);
@@ -36,10 +36,10 @@ app.post('/joingame',(req,res)=>{
   res.redirect('/'+room);
 })
 
+//Cards delaration 
 suits = ['C','D','H','S']
 cardNumber = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
 card = [];
-
 for(j=0;j<4;++j){
   for(i=0;i<13;++i){
     card.push({
@@ -50,6 +50,7 @@ for(j=0;j<4;++j){
   }
 }
 
+//Creates the room 
 app.get('/:id',(req,res)=>{
   var found = roomCode.find(e => e == req.params.id);
   if(found && playerCount[req.params.id] < maxCount[req.params.id]){ 
@@ -64,7 +65,7 @@ app.get('/:id',(req,res)=>{
     res.render('notfound');
 })
 
-
+//Socket Operation
 io.on('connection',(socket=>{
   console.log("Connected");
 
@@ -127,7 +128,7 @@ io.on('connection',(socket=>{
   });
 }))
 
-
+//Shuffle the cards 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
@@ -135,6 +136,7 @@ function shuffle(array) {
   }
 }
 
+//Server Start
 let PORT = 5000
 server.listen(PORT, () => {
   console.log(
