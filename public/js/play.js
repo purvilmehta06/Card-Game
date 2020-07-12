@@ -1,16 +1,24 @@
+//Global Methods Declaration
 const roomCode = document.getElementById('roomCode').innerHTML
 const admin = document.getElementById('admin').innerHTML
 var playCorner = document.getElementById('playCorner'); 
-var turn,username,myrank,count = 0 ;
+if(admin=='true')
+  document.getElementById('doit').style.visibility = 'hidden'
+
+//Glabal Variables
+var turn,username,myrank,count = 0,totalCards=0;
 var playerNames = [];
 var counterSuit = [];
+var score = {};
 counterSuit['S'] = 0;
 counterSuit['D'] = 0;
 counterSuit['C'] = 0;
 counterSuit['H'] = 0;
 
-
+//Connecting to server's socketS
 var socket = io.connect();
+
+//Ask Name to user 
 (async () => {
 const { value: name } = await Swal.fire({
   title: 'Enter your name',
@@ -21,32 +29,65 @@ socket.emit('name',{name:name,roomCode:roomCode})
 username = name;
 })()
 
+
+//Whenever new player is added
 socket.on('player',playerList =>{
   playerNames = [];
   var list = document.getElementById("livedata");
+  var list2 = document.getElementById("players");
+  var list3 = document.getElementById("score");
+  if(admin == 'true')
+    var scoreManage = document.getElementById('scoreManage');
   while (list.hasChildNodes())  
     list.removeChild(list.firstChild); 
+  while (list2.hasChildNodes())  
+    list2.removeChild(list2.firstChild);
+  while (list3.hasChildNodes())  
+    list3.removeChild(list3.firstChild);  
+  if(admin=='true'){
+    while (scoreManage.hasChildNodes())  
+      scoreManage.removeChild(scoreManage.firstChild);  
+  }
   for(i=0; i<playerList.length; i++){
     if(playerList[i].roomCode == roomCode){
       var node = document.createElement("LI");   
+      var node2 = document.createElement("LI"); 
+      var node3 = document.createElement("LI");  
+      if(admin == 'true'){ 
+        var x = document.createElement("INPUT");
+        x.setAttribute("type", "number");
+        x.setAttribute('id',"add"+playerList[i].player)
+        document.getElementById('scoreManage').appendChild(x);
+      }
       playerNames.push(playerList[i].player) 
       if(playerList[i].player == username)
         myrank = i;    
-      node.appendChild(document.createTextNode(playerList[i].player)); 
-      node.setAttribute("id",playerList[i].player);              
+      node.appendChild(document.createTextNode(playerList[i].player));
+      score[playerList[i].player] = 0; 
+      node2.appendChild(document.createTextNode(playerList[i].player)); 
+      node3.appendChild(document.createTextNode(score[playerList[i].player])); 
+      node.setAttribute("id",playerList[i].player);  
+      node3.setAttribute("id","score"+playerList[i].player);              
       document.getElementById("livedata").appendChild(node);
+      document.getElementById("players").appendChild(node2);
+      document.getElementById("score").appendChild(node3);
     }
   }
 })
 
-var invite = document.getElementById('invite').innerHTML = "Invitation Link :" + window.location.hostname + '/' + roomCode;
+//Displaying Invitation Link
+var invite = document.getElementById('invite').innerHTML = "Invitation Link : " + window.location.hostname + '/' + roomCode;
+
+//Start fuction (only for admin) to start the game
 function start(){
   document.getElementById('start').style.visibility = 'hidden'
+  if(admin=='true')
+    document.getElementById('doit').style.visibility = 'visible'
   socket.emit('start');
   setTimeout(askTurn, 3000 );
 }
 
-
+//This method will be called whenever cards are received.
 var i = 0;
 socket.on('sendData',data=>{
   if(admin == "false")
@@ -61,7 +102,7 @@ socket.on('sendData',data=>{
   elem.setAttribute("width", "150");
   elem.setAttribute('id',i);
   imgStack.appendChild(elem); 
-  document.getElementById(i).style.margin = "0 0 0 "+ (-100)+"px";
+  document.getElementById(i).style.margin = "0 0 0 "+ (-110)+"px";
   td = document.getElementById(i);
   if (typeof window.addEventListener === 'function'){
     (function (_td) {
@@ -89,9 +130,11 @@ socket.on('sendData',data=>{
     })(td);
   }
   ++i;
-  
+  ++totalCards;
 })
 
+
+//Asking admin about the ne=xt hand first turn
 function askTurn(){
   var inputOptions = {}
   for(i=0;i<playerNames.length;++i){
@@ -114,6 +157,7 @@ function askTurn(){
    })()
 }
 
+//Highlight player with the turn
 socket.on('msg',data=>{
   turn = data;
   var name = document.getElementById(turn);
@@ -124,6 +168,7 @@ socket.on('msg',data=>{
 
 })
 
+//This will called when player played some card
 socket.on('cardMsg',data=>{
   var elem = document.createElement("img");
   elem.src = data.data;
@@ -139,18 +184,62 @@ socket.on('cardMsg',data=>{
     for(i=0;i<playerNames.length;++i){
       document.getElementById(playerNames[i]).style.border = "none";
     }
-    setTimeout(doit,10000);
   }
 })
 
+//Clears the table
 socket.on('clearBoard',()=>{
   while (playCorner.hasChildNodes())  
     playCorner.removeChild(playCorner.firstChild); 
 })
 
+//Asking user for next turn
 function doit(){
+  --totalCards;
+  if(totalCards == 0){
+    clearEverything();
+    return;
+  }
   socket.emit('clear');
   turn = "";
   if(admin == "true") 
     askTurn();
 }
+
+//Clear all boards - initialising to base values
+function clearEverything(){
+  while (playCorner.hasChildNodes())  
+    playCorner.removeChild(playCorner.firstChild); 
+  while (imgStack.hasChildNodes())  
+    imgStack.removeChild(imgStack.firstChild); 
+
+  counterSuit['S'] = 0;
+  counterSuit['D'] = 0;
+  counterSuit['C'] = 0;
+  counterSuit['H'] = 0;
+
+  count = 0;
+  totalCards = 0;
+  turn = "";
+  document.getElementById('start').style.visibility = 'visible'
+  
+}
+
+//Send scoreboard
+function send(){
+  for(i =0 ;i<playerNames.length;++i)
+  {
+    if(document.getElementById('add'+playerNames[i]).value)
+      score[playerNames[i]] = parseInt(score[playerNames[i]]) + parseInt(document.getElementById('add'+playerNames[i]).value);
+  }
+  console.log(score);
+  socket.emit('sendScore',score);
+}
+
+//rec Scoreboard
+socket.on('recScore',score=>{
+  for(i=0;i<playerNames.length;++i){
+    console.log(score[playerNames[i]]);
+    document.getElementById('score'+playerNames[i]).innerHTML = (score[playerNames[i]]).toString(10);
+  }
+})

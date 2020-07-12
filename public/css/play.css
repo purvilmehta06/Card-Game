@@ -21,7 +21,7 @@ body, html {
   overflow-x: hidden;
   padding-top: 20px;
   left: 0;
-  background-color:gray;
+  background-color:lightgray;
 }
 h2,h5{
   text-align: center;
@@ -30,7 +30,7 @@ h2,h5{
 ul{
   color: black;
   text-align: center;
-  font-size: 25px;
+  font-size: 18px;
 }
 .container{
   align-items: center;
@@ -50,4 +50,37 @@ ul{
 img:hover{
   transform: translateY(-30px);
   cursor: pointer;
+}
+#start{
+  left: 50%;
+  top: 10%;
+  position: absolute;
+}
+
+.left .container{
+  bottom: 10px;
+  left: 10px;
+  position: absolute;
+  width: 90%;
+  border: solid 5px black;
+  align-items: center;
+}
+.left .container .row .col ul{
+  text-decoration: none;
+  list-style-type: none;
+  margin-bottom: 5px;
+}
+hr{
+  border-top: 1px solid black;;
+}
+
+input[type=number] {
+  width: 100%;
+  height:27px;
+}
+
+#send{
+  margin:10px;
+  align-items: center;
+  left: 50%;
 }

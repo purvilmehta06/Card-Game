@@ -16,12 +16,26 @@ head
       h2#admin(style="display:none") #{admin}
       hr
       ul#livedata.list-group
+      .container
+        h2 Scoreboard
+        hr
+        .row
+          .col
+            ul#players.list-group
+          .col
+            ul#score.list-group
+          if(admin)
+            .col#scoreManage
+        if(admin)
+          button.btn.btn-success#send(type='submit' onclick="send()") Send Score
+                
     .right
       h5#invite
       hr
       if(admin)
         .container
           button.btn.btn-success#start(type='submit' onclick="start()") Start Game
+          button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
       else
         h5#waitingMsg Please wait until admin starts the game
 

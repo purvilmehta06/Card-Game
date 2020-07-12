@@ -113,6 +113,11 @@ io.on('connection',(socket=>{
     io.in(socket.roomCode).emit('clearBoard');
   })
 
+  socket.on('sendScore',data=>{
+    console.log(data);
+    io.in(socket.roomCode).emit('recScore',data);
+  })
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
     var index;
