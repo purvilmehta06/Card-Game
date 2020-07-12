@@ -1,0 +1,53 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.img {
+  background-image: url("/images/back.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+.left {
+  height: 100%;
+  width: 20%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+  left: 0;
+  background-color:gray;
+}
+h2,h5{
+  text-align: center;
+  color: black;
+}
+ul{
+  color: black;
+  text-align: center;
+  font-size: 25px;
+}
+.container{
+  align-items: center;
+  left: -50%;
+}
+.right {
+  height: 100%;
+  width: 80%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+  right: 0;
+  background-color: white;
+}
+img:hover{
+  transform: translateY(-30px);
+  cursor: pointer;
+}
