@@ -6,7 +6,7 @@ Range of Players : 3 to 8.
 
 # Live Deployement 
  
-(https://bytecardgame.herokuapp.com)[https://bytecardgame.herokuapp.com/]
+https://bytecardgame.herokuapp.com/
 
 # Admin's Role
 
