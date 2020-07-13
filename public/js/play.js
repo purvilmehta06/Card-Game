@@ -202,7 +202,7 @@ socket.on('clearBoard',()=>{
 //Asking user for next turn
 function doit(){
   --totalCards;
-  check = 0;
+  count = 0;
   if(totalCards == 0){
     clearEverything();
     socket.emit('clearAll');

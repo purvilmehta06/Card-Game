@@ -3,6 +3,7 @@ head
   meta(charset='UTF-8')
   title Card Game
   // Bootstrap css and java scripts
+  link( rel="icon" href="/images/back_cards-07.png")
   link(rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous')
   link(rel="stylesheet" href="/css/play.css")
   script(src='https://code.jquery.com/jquery-3.4.1.slim.min.js' integrity='sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n' crossorigin='anonymous')
@@ -30,18 +31,22 @@ head
           button.btn.btn-success#send(type='submit' onclick="send()") Send Score
                 
     .right
-      h5#invite
-      hr
-      if(admin)
-        .container
-          button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
-          button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
-          button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
-      else
-        h5#waitingMsg Please wait until admin starts the game
+      .left
+        h2 Chat Box
+        hr
+      .right  
+        h5#invite
+        hr
+        if(admin)
+          .container
+            button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
+            button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
+            button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
+        else
+          h5#waitingMsg Please wait until admin starts the game
 
-      #playCorner(style="position:absolute;bottom:350px;right:100px;")
-      #imgStack(style="position:absolute;bottom:20px;right:20px;")
+        #playCorner(style="position:absolute;bottom:350px;right:100px;")
+        #imgStack(style="position:absolute;bottom:20px;right:20px;")
       
     script(src='/socket.io/socket.io.js')
     script(src='/js/play.js')
