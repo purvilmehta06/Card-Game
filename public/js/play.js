@@ -12,7 +12,7 @@ if(admin=='true'){
 document.getElementById('declare').style.visibility = 'hidden';
 
 //Glabal Variables
-var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0;
+var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0;;
 var playerNames = [];
 var counterSuit = [];
 var declareScore = {};
@@ -110,7 +110,6 @@ function start(){
 }
 
 //This method will be called whenever cards are received.
-var unique = 0;
 socket.on('sendData',data=>{
   if(admin == "false")
     document.getElementById('waitingMsg').style.visibility = 'hidden'
@@ -256,6 +255,7 @@ function clearEverything(){
   count = 0;
   totalCards = 0;
   turn = "";
+  unique = 0;
 
   if(admin=='true'){
     document.getElementById('start').style.visibility = 'visible'
@@ -340,10 +340,8 @@ socket.on('recDeclareOffer',()=>{
 //Displays scores to screen
 socket.on('declarePoints',data=>{
   declareScore[data.name] = data.points;
-  console.log(declareScore);
   if(Object.keys(declareScore).length == playerNames.length)
   {
-    console.log("OK", declareScore)
     var s = "";
     for(i=0;i<playerNames.length;++i){
       s = s + playerNames[i] + " : " + declareScore[playerNames[i]] + "<br>";
@@ -352,6 +350,7 @@ socket.on('declarePoints',data=>{
       title: 'Scores!',
       html: s,
     })
+    declareScore = {}
   }
 })
   

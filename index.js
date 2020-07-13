@@ -118,7 +118,6 @@ io.on('connection',(socket=>{
   })
 
   socket.on('myScore',data=>{
-    console.log(data)
     io.in(socket.roomCode).emit('declarePoints',data);
   })
     
