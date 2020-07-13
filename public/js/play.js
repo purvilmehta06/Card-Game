@@ -6,6 +6,7 @@ if(admin=='true'){
   document.getElementById('doit').style.visibility = 'hidden'
   document.getElementById('startSame').style.visibility = 'hidden'
   document.getElementById('start').disabled = true;
+  document.getElementById('end').style.visibility = 'hidden';
 }
 
 //Glabal Variables
@@ -87,13 +88,17 @@ var invite = document.getElementById('invite').innerHTML = "Invitation Link : " 
 
 //Start fuction (only for admin) to start the game
 function start(){
+  if(!document.getElementById('hands').value || document.getElementById('hands').value*playerNames.length>52 || document.getElementById('hands').value<=0)
+    return;
   document.getElementById('start').style.visibility = 'hidden'
   document.getElementById('startSame').style.visibility = 'hidden'
   if(admin=='true')
   {
     document.getElementById('doit').style.visibility = 'visible'
+    document.getElementById('hands').style.visibility = 'hidden'
+    document.getElementById('end').style.visibility = 'visible';
   }
-  socket.emit('start');
+  socket.emit('start',document.getElementById('hands').value);
   setTimeout(askTurn, 3000 );
 }
 
@@ -122,10 +127,9 @@ socket.on('sendData',data=>{
             if(count>0){
               let check = document.getElementById('play0').src;
               check = check.split("/").pop().split(".")[0];
-              console.log(check,suit)
+              
               var suitIndex = suit.length - 1
               var checkIndex = check.length - 1
-              console.log(suitIndex,checkIndex)
               if(check[checkIndex]!=suit[suitIndex] && counterSuit[check[checkIndex]] != 0)
                 return;
             }
@@ -225,7 +229,9 @@ function clearEverything(){
     playCorner.removeChild(playCorner.firstChild); 
   while (imgStack.hasChildNodes())  
     imgStack.removeChild(imgStack.firstChild); 
-
+  for(i=0;i<playerNames.length;++i){
+    document.getElementById(playerNames[i]).style.border = "none";
+  }
   counterSuit['S'] = 0;
   counterSuit['D'] = 0;
   counterSuit['C'] = 0;
@@ -237,8 +243,10 @@ function clearEverything(){
 
   if(admin=='true'){
     document.getElementById('start').style.visibility = 'visible'
+    document.getElementById('hands').style.visibility = 'visible'
     document.getElementById('doit').style.visibility = 'hidden'
     document.getElementById('startSame').style.visibility = 'visible'
+    document.getElementById('end').style.visibility = 'hidden';
   }
 }
 
@@ -249,14 +257,12 @@ function send(){
     if(document.getElementById('add'+playerNames[i]).value)
       score[playerNames[i]] = parseInt(score[playerNames[i]]) + parseInt(document.getElementById('add'+playerNames[i]).value);
   }
-  console.log(score);
   socket.emit('sendScore',score);
 }
 
 //rec Scoreboard
 socket.on('recScore',score=>{
   for(i=0;i<playerNames.length;++i){
-    console.log(score[playerNames[i]]);
     document.getElementById('score'+playerNames[i]).innerHTML = (score[playerNames[i]]).toString(10);
   }
 })

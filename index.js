@@ -73,15 +73,13 @@ io.on('connection',(socket=>{
     socket.join(msg.roomCode);
     socket.name = msg.name;
     socket.roomCode = msg.roomCode;
-    console.log(socket.roomCode)
     playerCount[msg.roomCode]++;
-    console.log(playerCount[socket.roomCode])
     playerName.push({player:msg.name,roomCode:msg.roomCode,socketId:socket.id});
     io.in(msg.roomCode).emit('player', playerName);
   })
 
-  socket.on('start',()=>{
-    var remove = 52%playerCount[socket.roomCode];
+  socket.on('start',(data)=>{
+    
     for(i=0;i<5;++i)
       shuffle(card);
     sockets = [];
@@ -90,13 +88,8 @@ io.on('connection',(socket=>{
         sockets.push(playerName[i].socketId)
     }
     var j=0;
-    for(i=0;i<52;++i){
-      if(card[i].cardNumber == '2' && remove>0){
-        --remove;
-        continue;
-      }
-      else
-        io.to(sockets[(j++)%(sockets.length)]).emit('sendData', card[i]);
+    for(i=0;i<data*sockets.length;++i){
+      io.to(sockets[(j++)%(sockets.length)]).emit('sendData', card[i]);
     }
   })
 
@@ -105,7 +98,6 @@ io.on('connection',(socket=>{
   })
 
   socket.on('card',data=>{
-    console.log(data);
     io.in(socket.roomCode).emit('cardMsg',{data:data,maxCount:maxCount[socket.roomCode]});
   })
 
@@ -114,7 +106,6 @@ io.on('connection',(socket=>{
   })
 
   socket.on('sendScore',data=>{
-    console.log(data);
     io.in(socket.roomCode).emit('recScore',data);
   })
 

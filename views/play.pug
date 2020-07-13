@@ -35,9 +35,12 @@ head
       hr
       if(admin)
         .container
-          button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
-          button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
-          button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
+          span
+            input.form-control(style="width:200px" id="hands" type='number' placeholder='Enter total cards in hand' min=1 required)
+            button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
+            button.btn.btn-danger#end(type='submit' onclick="clearEverything()") End Game
+            button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
+            button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
       else
         h5#waitingMsg Please wait until admin starts the game
 
