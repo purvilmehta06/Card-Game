@@ -31,22 +31,18 @@ head
           button.btn.btn-success#send(type='submit' onclick="send()") Send Score
                 
     .right
-      .left
-        h2 Chat Box
-        hr
-      .right  
-        h5#invite
-        hr
-        if(admin)
-          .container
-            button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
-            button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
-            button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
-        else
-          h5#waitingMsg Please wait until admin starts the game
+      h5#invite
+      hr
+      if(admin)
+        .container
+          button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
+          button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
+          button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
+      else
+        h5#waitingMsg Please wait until admin starts the game
 
-        #playCorner(style="position:absolute;bottom:350px;right:100px;")
-        #imgStack(style="position:absolute;bottom:20px;right:20px;")
+      #playCorner(style="position:absolute;bottom:350px;right:100px;")
+      #imgStack(style="position:absolute;bottom:20px;right:20px;")
       
     script(src='/socket.io/socket.io.js')
     script(src='/js/play.js')
