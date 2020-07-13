@@ -1,6 +1,7 @@
 //Global Methods Declaration
 const roomCode = document.getElementById('roomCode').innerHTML
 const admin = document.getElementById('admin').innerHTML
+const gameType = document.getElementById('gameType').innerHTML
 var playCorner = document.getElementById('playCorner'); 
 if(admin=='true'){
   document.getElementById('doit').style.visibility = 'hidden'
@@ -8,11 +9,13 @@ if(admin=='true'){
   document.getElementById('start').disabled = true;
   document.getElementById('end').style.visibility = 'hidden';
 }
+document.getElementById('declare').style.visibility = 'hidden';
 
 //Glabal Variables
-var turn,username,myrank,count = 0,totalCards=0;
+var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0;
 var playerNames = [];
 var counterSuit = [];
+var declareScore = {};
 var score = {};
 counterSuit['S'] = 0;
 counterSuit['D'] = 0;
@@ -37,10 +40,14 @@ username = name;
 //Whenever new player is added
 socket.on('player',playerList =>{
   playerNames = [];
-  if(admin=='true' && playerList.length>=3)
+  if(admin=='true' && playerList.length>=3){
     document.getElementById('start').disabled = false;
-  if(admin == 'true' && playerList.length <3)
-  document.getElementById('start').disabled = true;
+    document.getElementById('startSame').disabled = false;
+  }
+  if(admin == 'true' && playerList.length <3){
+    document.getElementById('start').disabled = true;
+    document.getElementById('startSame').disabled = true;
+  }
   var list = document.getElementById("livedata");
   var list2 = document.getElementById("players");
   var list3 = document.getElementById("score");
@@ -103,10 +110,13 @@ function start(){
 }
 
 //This method will be called whenever cards are received.
-var i = 0;
+var unique = 0;
 socket.on('sendData',data=>{
   if(admin == "false")
     document.getElementById('waitingMsg').style.visibility = 'hidden'
+  
+  if(gameType == 'Declare')
+    document.getElementById('declare').style.visibility = 'visible';
   var imgStack = document.getElementById('imgStack');
 
   counterSuit[data.suit]++;
@@ -115,10 +125,10 @@ socket.on('sendData',data=>{
   elem.src = '/images/'+data.name;
   elem.setAttribute("height", "200");
   elem.setAttribute("width", "150");
-  elem.setAttribute('id',i);
+  elem.setAttribute('id',unique);
   imgStack.appendChild(elem); 
-  document.getElementById(i).style.margin = "0 0 0 "+ (-110)+"px";
-  td = document.getElementById(i);
+  document.getElementById(unique).style.margin = "0 0 0 "+ (-110)+"px";
+  td = document.getElementById(unique);
   if (typeof window.addEventListener === 'function'){
     (function (_td) {
       td.addEventListener('click', function(){
@@ -144,13 +154,16 @@ socket.on('sendData',data=>{
       });
     })(td);
   }
-  ++i;
+  ++unique;
   ++totalCards;
+  cardsCount = totalCards;
 })
 
 
 //Asking admin about the ne=xt hand first turn
 function askTurn(){
+  if(gameType == 'Declare')
+    socket.emit('toggle');
   var inputOptions = {}
   for(i=0;i<playerNames.length;++i){
     inputOptions[playerNames[i]] = playerNames[i]  
@@ -196,6 +209,9 @@ socket.on('cardMsg',data=>{
   
   if(count == data.maxCount){
     count = 0;
+    turn = "";
+    if(gameType == 'Declare')
+      socket.emit('toggle');
     for(i=0;i<playerNames.length;++i){
       document.getElementById(playerNames[i]).style.border = "none";
     }
@@ -248,6 +264,8 @@ function clearEverything(){
     document.getElementById('startSame').style.visibility = 'visible'
     document.getElementById('end').style.visibility = 'hidden';
   }
+  if(gameType == 'Declare')
+    document.getElementById('declare').style.visibility = 'hidden';
 }
 
 //Send scoreboard
@@ -278,3 +296,69 @@ function clearScoreboard(){
 socket.on('clearEverything',()=>{
   clearEverything();
 })
+
+function endGame(){
+  socket.emit('clearAll');
+}
+
+//Counts the points after one game of declare
+function countPoints(){
+  var points = 0;
+  for(i=0;i<cardsCount;++i){
+    if(document.getElementById(i).style.visibility != 'hidden'){
+      let card = document.getElementById(i).src.split("/").pop().split(".")[0];
+      if(card.length == 2){
+        if(card[0]=='A'){
+          points+=1;
+        }else if(card[0]=='K'){
+          points+=13;
+        }else if(card[0]=='Q'){
+          points+=12;
+        }else if(card[0]=='J'){
+          points+=11;
+        }else 
+          points+=parseInt(card[0]);
+      }
+      else  
+        points += 10;
+    }
+  }
+    
+  socket.emit('myScore',{name:username,points:points});
+}
+
+function declare(){
+  socket.emit('declare');
+  socket.emit('clearAll');
+}
+
+socket.on('recDeclareOffer',()=>{
+  countPoints();
+})
+
+
+//Displays scores to screen
+socket.on('declarePoints',data=>{
+  declareScore[data.name] = data.points;
+  console.log(declareScore);
+  if(Object.keys(declareScore).length == playerNames.length)
+  {
+    console.log("OK", declareScore)
+    var s = "";
+    for(i=0;i<playerNames.length;++i){
+      s = s + playerNames[i] + " : " + declareScore[playerNames[i]] + "<br>";
+    }
+    Swal.fire({
+      title: 'Scores!',
+      html: s,
+    })
+  }
+})
+  
+//Manages when declare button is on or off.
+socket.on('toggleDeclare',()=>{
+  toggleDeclare();
+})
+function toggleDeclare(){
+  document.getElementById('declare').disabled = !document.getElementById('declare').disabled;
+}

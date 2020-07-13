@@ -17,7 +17,10 @@ head
       form(method='POST' action='/joingame')
         .form-row
           input.form-control( id="player" type='number' name='player' placeholder='Enter total players' min=3 max=8 required)
-          
+          select.form-control#gameType(name='gameType')
+            option(value='MindiCoat, Judgement or Other') MindiCoat, Judgement or Other
+            option(value='Declare') Declare
+
         button.btn.btn-primary(id="submit" type='submit') Create Game
       
     script(src='/js/main.js')

@@ -19,8 +19,10 @@ const io = socket(server);
 //Defining global variables
 var roomCode = [];
 var playerName = [];
+var gameType = [];
 maxCount = [];
 playerCount = [];
+
 
 //Main page render
 app.get('/',(req,res)=>{
@@ -33,6 +35,8 @@ app.post('/joingame',(req,res)=>{
   roomCode.push(room);
   maxCount[room] = req.body.player;
   playerCount[room] = 0;
+  console.log(req.body.gameType)
+  gameType[room] = req.body.gameType;
   res.redirect('/'+room);
 })
 
@@ -59,7 +63,7 @@ app.get('/:id',(req,res)=>{
       admin = true
     else    
       admin = false
-    res.render('play',{roomCode: req.params.id,admin:admin});
+    res.render('play',{roomCode: req.params.id,admin:admin,gameType:gameType[req.params.id]});
   }
   else
     res.render('notfound');
@@ -98,7 +102,7 @@ io.on('connection',(socket=>{
   })
 
   socket.on('card',data=>{
-    io.in(socket.roomCode).emit('cardMsg',{data:data,maxCount:maxCount[socket.roomCode]});
+    io.in(socket.roomCode).emit('cardMsg',{data:data,maxCount:playerCount[socket.roomCode]});
   })
 
   socket.on('clear',()=>{
@@ -113,6 +117,19 @@ io.on('connection',(socket=>{
     io.in(socket.roomCode).emit('clearEverything');
   })
 
+  socket.on('myScore',data=>{
+    console.log(data)
+    io.in(socket.roomCode).emit('declarePoints',data);
+  })
+    
+  socket.on('declare',()=>{
+    io.in(socket.roomCode).emit('recDeclareOffer');
+  })
+
+  socket.on('toggle',()=>{
+    io.in(socket.roomCode).emit('toggleDeclare');
+  })
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
     var index;
@@ -125,6 +142,7 @@ io.on('connection',(socket=>{
     if(playerCount[socket.roomCode] == 0)
       roomCode.splice(roomCode.indexOf(socket.roomCode),1);
     io.in(socket.roomCode).emit('player', playerName);
+    io.in(socket.roomCode).emit('clearEverything');
   });
 }))
 
