@@ -5,6 +5,7 @@ var playCorner = document.getElementById('playCorner');
 if(admin=='true'){
   document.getElementById('doit').style.visibility = 'hidden'
   document.getElementById('startSame').style.visibility = 'hidden'
+  document.getElementById('start').disabled = true;
 }
 
 //Glabal Variables
@@ -35,6 +36,10 @@ username = name;
 //Whenever new player is added
 socket.on('player',playerList =>{
   playerNames = [];
+  if(admin=='true' && playerList.length>=3)
+    document.getElementById('start').disabled = false;
+  if(admin == 'true' && playerList.length <3)
+  document.getElementById('start').disabled = true;
   var list = document.getElementById("livedata");
   var list2 = document.getElementById("players");
   var list3 = document.getElementById("score");
