@@ -4,6 +4,10 @@ It is fun card game creator which supports many other card game. User can choose
 
 Range of Players : 3 to 8.
 
+# Live Deployement 
+ 
+(https://bytecardgame.herokuapp.com)[https://bytecardgame.herokuapp.com/]
+
 # Admin's Role
 
 Admin will be the responsible for creating the game. Once game is created, admin can invite other players using invitation link. Once all the players are joined, admin has to start the game. As soon as admin starts the game system will distributes the cards among players. After each hand, admin will be asked for the first turn. Admin can select the player name. The idea over here is to make the generalise game. Thus rights of the first card has to be with admin. 
