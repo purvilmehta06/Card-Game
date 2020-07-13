@@ -21,3 +21,13 @@ Admin can also separetly maintain the scoreboard which can be seen by all other 
 5. Admin will have 10 senconds between each hand (turn).
 
 Note that if game demand "Hukam" then that should be monitered manually because game might have the "Hukam" or might not have the "Hukam" which can't be generalised.
+
+# Games that can be played
+
+1. Mindi Coat
+2. Judgement ("Ka Chu Phu La" Lacal Name)
+3. Declare
+4. Satiyu
+5. Kali tidi (Spade Of Three)
+
+All that games which demands distribution of FULL DECK OF CARDS among players or randomly selected cards among players can be played using this application.
