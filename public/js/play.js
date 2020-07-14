@@ -12,7 +12,8 @@ if(admin=='true'){
 document.getElementById('declare').style.visibility = 'hidden';
 
 //Glabal Variables
-var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0;;
+var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0;
+var declarePlayer;
 var playerNames = [];
 var counterSuit = [];
 var declareScore = {};
@@ -30,7 +31,13 @@ var socket = io.connect();
 const { value: name } = await Swal.fire({
   title: 'Enter your name',
   input: 'text',
-  inputPlaceholder: 'Please enter your name'
+  allowOutsideClick: false,
+  inputPlaceholder: 'Please enter your name',
+  inputValidator: (value) => {
+    if (!value) {
+      return 'You need to enter name!'
+    }
+  }
 })
 socket.emit('name',{name:name,roomCode:roomCode})
 username = name;
@@ -106,7 +113,7 @@ function start(){
     document.getElementById('end').style.visibility = 'visible';
   }
   socket.emit('start',document.getElementById('hands').value);
-  setTimeout(askTurn, 3000 );
+  askTurn();
 }
 
 //This method will be called whenever cards are received.
@@ -133,16 +140,16 @@ socket.on('sendData',data=>{
       td.addEventListener('click', function(){
           if(turn == username){
             let suit = _td.src.split("/").pop().split(".")[0];
+            var suitIndex = suit.length - 1
             if(count>0){
               let check = document.getElementById('play0').src;
               check = check.split("/").pop().split(".")[0];
               
-              var suitIndex = suit.length - 1
               var checkIndex = check.length - 1
-              if(check[checkIndex]!=suit[suitIndex] && counterSuit[check[checkIndex]] != 0)
+              if(check[checkIndex]!=suit[suitIndex] && counterSuit[check[checkIndex]] != 0){
                 return;
+              }
             }
-            
             counterSuit[suit[suitIndex]]--;
           
             _td.style.visibility='hidden'
@@ -171,6 +178,7 @@ function askTurn(){
   const { value: color } = await Swal.fire({
     title: 'Select Player for first turn',
     input: 'radio',
+    allowOutsideClick: false,
     inputOptions: playerNames,
     inputValidator: (value) => {
       if (!value) {
@@ -328,12 +336,14 @@ function countPoints(){
 }
 
 function declare(){
-  socket.emit('declare');
+  socket.emit('declare',username);
   socket.emit('clearAll');
 }
 
-socket.on('recDeclareOffer',()=>{
+socket.on('recDeclareOffer',(data)=>{
   countPoints();
+  if(admin == 'true')
+    declarePlayer = data;
 })
 
 
@@ -343,13 +353,32 @@ socket.on('declarePoints',data=>{
   if(Object.keys(declareScore).length == playerNames.length)
   {
     var s = "";
+    
     for(i=0;i<playerNames.length;++i){
       s = s + playerNames[i] + " : " + declareScore[playerNames[i]] + "<br>";
     }
+    if(admin == 'true'){
+      var flag = 0;
+      for(i=0;i<playerNames.length;++i){
+        if(declareScore[playerNames[i]]<declareScore[declarePlayer]){
+          declareScore[playerNames[i]] = 0;
+          flag = 1;
+        }
+      }
+      if(flag)
+        declareScore[declarePlayer] = declareScore[declarePlayer]*2; 
+      else  
+        declareScore[declarePlayer] = 0;
+      for(i=0;i<playerNames.length;++i){
+        document.getElementById('add'+playerNames[i]).value = declareScore[playerNames[i]]
+      }
+    } 
     Swal.fire({
       title: 'Scores!',
       html: s,
     })
+    if(admin=='true')
+      document.getElementById('send').click();
     declareScore = {}
   }
 })

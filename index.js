@@ -121,8 +121,8 @@ io.on('connection',(socket=>{
     io.in(socket.roomCode).emit('declarePoints',data);
   })
     
-  socket.on('declare',()=>{
-    io.in(socket.roomCode).emit('recDeclareOffer');
+  socket.on('declare',(data)=>{
+    io.in(socket.roomCode).emit('recDeclareOffer',data);
   })
 
   socket.on('toggle',()=>{
