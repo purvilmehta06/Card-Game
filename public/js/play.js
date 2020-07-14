@@ -12,7 +12,7 @@ if(admin=='true'){
 document.getElementById('declare').style.visibility = 'hidden';
 
 //Glabal Variables
-var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0;
+var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0,expectedCards;
 var declarePlayer;
 var playerNames = [];
 var counterSuit = [];
@@ -22,6 +22,12 @@ counterSuit['S'] = 0;
 counterSuit['D'] = 0;
 counterSuit['C'] = 0;
 counterSuit['H'] = 0;
+cards = {
+  'S':[],
+  'D':[],
+  'C':[],
+  'H':[]
+}
 
 //Connecting to server's socketS
 var socket = io.connect();
@@ -113,11 +119,13 @@ function start(){
     document.getElementById('end').style.visibility = 'visible';
   }
   socket.emit('start',document.getElementById('hands').value);
+  
   askTurn();
 }
 
 //This method will be called whenever cards are received.
-socket.on('sendData',data=>{
+socket.on('sendData',(data,e)=>{
+  expectedCards = e;
   if(admin == "false")
     document.getElementById('waitingMsg').style.visibility = 'hidden'
   
@@ -126,7 +134,7 @@ socket.on('sendData',data=>{
   var imgStack = document.getElementById('imgStack');
 
   counterSuit[data.suit]++;
-
+  cards[data.suit].push(data);
   var elem = document.createElement("img");
   elem.src = '/images/'+data.name;
   elem.setAttribute("height", "200");
@@ -162,9 +170,38 @@ socket.on('sendData',data=>{
   }
   ++unique;
   ++totalCards;
+  if(totalCards == expectedCards)
+    setCards();
   cardsCount = totalCards;
 })
 
+function setCards(){
+  var index = 0; 
+  var dummy = cards['S'];
+  dummy.sort((a,b) => (a.weight > b.weight) ? 1 : ((b.weight > a.weight) ? -1 : 0)); 
+  for(i=0;i<dummy.length;++i){
+    document.getElementById(index).src = '/images/'+dummy[i].name;
+    ++index;
+  }
+  dummy = cards['D'];
+  dummy.sort((a,b) => (a.weight > b.weight) ? 1 : ((b.weight > a.weight) ? -1 : 0)); 
+  for(i=0;i<dummy.length;++i){
+    document.getElementById(index).src = '/images/'+dummy[i].name;
+    ++index;
+  }
+  dummy = cards['C'];
+  dummy.sort((a,b) => (a.weight > b.weight) ? 1 : ((b.weight > a.weight) ? -1 : 0)); 
+  for(i=0;i<dummy.length;++i){
+    document.getElementById(index).src = '/images/'+dummy[i].name;
+    ++index;
+  }
+  dummy = cards['H'];
+  dummy.sort((a,b) => (a.weight > b.weight) ? 1 : ((b.weight > a.weight) ? -1 : 0)); 
+  for(i=0;i<dummy.length;++i){
+    document.getElementById(index).src = '/images/'+dummy[i].name;
+    ++index;
+  }
+}
 
 //Asking admin about the ne=xt hand first turn
 function askTurn(){

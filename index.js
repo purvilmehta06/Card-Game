@@ -43,12 +43,14 @@ app.post('/joingame',(req,res)=>{
 //Cards delaration 
 suits = ['C','D','H','S']
 cardNumber = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+weight = [1,2,3,4,5,6,7,8,9,10,11,12,13]
 card = [];
 for(j=0;j<4;++j){
   for(i=0;i<13;++i){
     card.push({
       cardNumber : cardNumber[i],
       suit : suits[j],
+      weight : weight[i],
       name: cardNumber[i]+suits[j]+'.png'
     })
   }
@@ -93,7 +95,7 @@ io.on('connection',(socket=>{
     }
     var j=0;
     for(i=0;i<data*sockets.length;++i){
-      io.to(sockets[(j++)%(sockets.length)]).emit('sendData', card[i]);
+      io.to(sockets[(j++)%(sockets.length)]).emit('sendData', card[i],data);
     }
   })
 
