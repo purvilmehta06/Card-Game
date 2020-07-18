@@ -193,33 +193,16 @@ function setCards(){
   }
 }
 
-//Asking admin about the ne=xt hand first turn
-function askTurn(){
-
-  swal.fire({
-    title: 'Select Player for turn',
-    input: 'radio',
-    inputOptions: playerNames,
-    allowOutsideClick: false,
-    inputValidator: function(result) {
-      return new Promise(function(resolve, reject) {
-        if (result) {
-          resolve();
-        } else {
-          reject('You need to select something!');
-        }
-      });
-    }
-  }).then(function(result) {
-    turn = playerNames[result.value];
-    socket.emit('turn',turn,true)
-  })
-
-}
-
-
 //Highlight player with the turn
 socket.on('msg',(data,toast)=>{
+  if(admin=='true'){
+    mindiA = Math.floor(document.getElementById('score'+playerNames[0]).innerHTML/10) + Math.floor(document.getElementById('score'+playerNames[2]).innerHTML/10)
+    mindiB = Math.floor(document.getElementById('score'+playerNames[1]).innerHTML/10) + Math.floor(document.getElementById('score'+playerNames[3]).innerHTML/10)
+    console.log(mindiA,mindiB)
+    if(mindiA+mindiB ==4 && mindiA!=2 && totalCards>0){
+      document.getElementById('end').click();return;
+    }
+  }
   turn = data;
   if(toast){
     document.getElementById('snackbar').innerHTML = turn +'\'s Turn';
@@ -331,6 +314,7 @@ function doit(){
   }
   
   document.getElementById('add'+currentMax.player).value = '';
+  
   if(totalCards == 0){
     socket.emit('clearAll');
     return;
