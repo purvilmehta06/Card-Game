@@ -43,7 +43,7 @@ app.post('/joingame',(req,res)=>{
 //Cards delaration 
 suits = ['C','D','H','S']
 cardNumber = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
-weight = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+weight = [14,2,3,4,5,6,7,8,9,10,11,12,13]
 card = [];
 for(j=0;j<4;++j){
   for(i=0;i<13;++i){
@@ -65,7 +65,10 @@ app.get('/:id',(req,res)=>{
       admin = true
     else    
       admin = false
-    res.render('play',{roomCode: req.params.id,admin:admin,gameType:gameType[req.params.id]});
+    if(gameType[req.params.id] == 'MindiCoat')
+      res.render('mindi',{roomCode: req.params.id,admin:admin});
+    else
+      res.render('play',{roomCode: req.params.id,admin:admin,gameType:gameType[req.params.id]});
   }
   else
     res.render('notfound');
@@ -88,31 +91,49 @@ io.on('connection',(socket=>{
     
     for(i=0;i<5;++i)
       shuffle(card);
+
     sockets = [];
     for( i=0;i<playerName.length;++i){
       if(playerName[i].roomCode == socket.roomCode)
         sockets.push(playerName[i].socketId)
     }
+    while(card[0].weight == card[1].weight)
+      shuffle(card);
+    io.in(socket.roomCode).emit('firstTurn', card[0],card[1]);
+    for(i=0;i<5;++i)
+      shuffle(card);
     var j=0;
     for(i=0;i<data*sockets.length;++i){
       io.to(sockets[(j++)%(sockets.length)]).emit('sendData', card[i],data);
     }
   })
 
-  socket.on('turn',data=>{
-    io.in(socket.roomCode).emit('msg', data);
+  socket.on('turn',(data,toast)=>{
+    io.in(socket.roomCode).emit('msg', data,toast);
   })
 
-  socket.on('card',data=>{
-    io.in(socket.roomCode).emit('cardMsg',{data:data,maxCount:playerCount[socket.roomCode]});
+  socket.on('card',(data,username)=>{
+    io.in(socket.roomCode).emit('cardMsg',{username:username,data:data,maxCount:playerCount[socket.roomCode]});
   })
 
   socket.on('clear',()=>{
     io.in(socket.roomCode).emit('clearBoard');
   })
 
+  socket.on('showUI',()=>{
+    io.in(socket.roomCode).emit('getUI');
+  })
+
+  socket.on('hukam',(data)=>{
+    io.in(socket.roomCode).emit('hukamShow',data);
+  })
+
   socket.on('sendScore',data=>{
     io.in(socket.roomCode).emit('recScore',data);
+  })
+
+  socket.on('mindiHighlight',data=>{
+    io.in(socket.roomCode).emit('mindiAccepted',data);
   })
 
   socket.on('clearAll',()=>{

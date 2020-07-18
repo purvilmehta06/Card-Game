@@ -1,0 +1,79 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title Card Game
+  // Bootstrap css and java scripts
+  link( rel="icon" href="/images/back_cards-07.png")
+  link(rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh' crossorigin='anonymous')
+  link(rel="stylesheet" href="/css/play.css")
+  script(src='https://code.jquery.com/jquery-3.4.1.slim.min.js' integrity='sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n' crossorigin='anonymous')
+  script(src='https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js' integrity='sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo' crossorigin='anonymous')
+  script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js' integrity='sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6' crossorigin='anonymous')
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  body
+    .left
+      h2 Players List
+      h2#roomCode(style="display:none") #{roomCode}
+      h2#admin(style="display:none") #{admin}
+      hr
+      ul#livedata.list-group
+      hr
+      .row
+        .col
+          img#S10(src="/images/10S.png" height="100px" width="75px" style="opacity:0.5;margin:5px 5px 5px 10px;border:1px solid black")
+        .col
+          img#D10(src="/images/10D.png" height="100px" width="75px" style="opacity:0.5;margin:5px 5px 5px 10px;border:1px solid black")
+      .row
+        .col
+          img#C10(src="/images/10C.png" height="100px" width="75px" style="opacity:0.5;margin:5px 5px 5px 10px;border:1px solid black")
+        .col
+          img#H10(src="/images/10H.png" height="100px" width="75px" style="opacity:0.5;margin:5px 5px 5px 10px;border:1px solid black")
+      .container
+        h2 Scoreboard
+        hr
+        .row
+          .col
+            ul#players.list-group
+          .col
+            ul#score.list-group
+          if(admin)
+            .col#scoreManage
+        if(admin)
+          button.btn.btn-success#send(type='submit' onclick="send()") Send Score
+                
+    .right
+      
+      
+      if(admin)
+        .container
+          button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
+          button.btn.btn-danger#end(type='submit' onclick="endGame()") End Game
+          
+      
+      
+
+      #playCorner(style="position:absolute;bottom:320px;right:400px;")
+      .container(style="position:absolute;bottom:20px;left:10px")        
+        h6 Hukam
+        img#hukam(src="/images/NA.png" height="50px" width="50px" style="border:1px solid black")
+      .container#player1detail(style="position:absolute;bottom:20px;left:250px")        
+        h6#player1 Player 1
+        img#player1img(src="/images/avtar.png" height="100px" width="100px" style="border:1px solid black;border-radius: 50px;")
+      .container#player2detail(style="position:absolute;bottom:420px;left:180px")        
+        h6#player2 Player 2
+        img#player2img(src="/images/avtar.png" height="100px" width="100px" style="border:1px solid black;border-radius: 50px;")
+      .container#player4detail(style="position:absolute;bottom:420px;left:900px")        
+        h6#player4 Player 4
+        img#player4img(src="/images/avtar.png" height="100px" width="100px" style="border:1px solid black;border-radius: 50px;")
+      .container#player3detail(style="position:absolute;top:20px;left:550px")        
+        h6#player3 Player 3
+        img#player3img(src="/images/avtar.png" height="100px" width="100px" style="border:1px solid black;border-radius: 50px;")
+      #imgStack(style="position:absolute;bottom:20px;right:20px;")
+      #snackbar 
+    script(src='/socket.io/socket.io.js')
+    script(src='/js/main.js')
+      
+
+
+
+      

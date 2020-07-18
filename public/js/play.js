@@ -301,6 +301,12 @@ function clearEverything(){
   totalCards = 0;
   turn = "";
   unique = 0;
+  cards = {
+    'S':[],
+    'D':[],
+    'C':[],
+    'H':[]
+  }
 
   if(admin=='true'){
     document.getElementById('start').style.visibility = 'visible'

@@ -14,16 +14,29 @@ head
     .img
     .container
       h1 Welcome to Card Game
-      form(method='POST' action='/joingame')
+      form(id="myform" name ="myform" method='POST' action='/joingame')
         .form-row
           input.form-control( id="player" type='number' name='player' placeholder='Enter total players' min=3 max=8 required)
           select.form-control#gameType(name='gameType')
-            option(value='MindiCoat, Judgement or Other') MindiCoat, Judgement or Other
+            option(value='MindiCoat') MindiCoat
+            option(value='Judgement') Judgement
             option(value='Declare') Declare
 
-        button.btn.btn-primary(id="submit" type='submit') Create Game
+        button.btn.btn-primary(id="submit" type='submit' ) Create Game
       
-    script(src='/js/main.js')
+    script.
+      $("#myform").submit(function() {
+        
+        if(document.getElementById('gameType').value == 'MindiCoat'){
+        if(document.getElementById('player').value !=4 ){
+          alert('Mindicoat requires 4 players');
+          return false;
+        }
+        } 
+        return true;
+      });
+      
+
 
       
 
