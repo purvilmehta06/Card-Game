@@ -6,21 +6,14 @@ Range of Players : 3 to 8.
 
 # Live Deployement 
  
-https://bytecardgame.herokuapp.com/
+Asia Pacific Europe Region: https://bytecardgame.herokuapp.com/
+United States of America Region : https://byte8cardgame.herokuapp.com/
 
 # Admin's Role
 
-Admin will be the responsible for creating the game. Once game is created, admin can invite other players using invitation link. Once all the players are joined, admin has to start the game. As soon as admin starts the game system will distributes the cards among players. After each hand, admin will be asked for the first turn. Admin can select the player name. The idea over here is to make the generalise game. Thus rights of the first card has to be with admin. 
+Admin will be the responsible for creating the game. Once game is created, admin can invite other players using invitation link. Once all the players are joined, admin has to start the game. As soon as admin starts the game system will distributes the cards among players.
 
-Admin can also separetly maintain the scoreboard which can be seen by all other players. Some of the basic rules are implemented below. 
-
-1. If player has a card of a given suit at any point of time, then player has to place that suit's card in that turn.  
-2. If player do not have any card of given suit then player can place any other suit's card.
-3. After one hand (turn), admin has to select the player to start the next hand (turn). 
-4. Admin has to update previous hands in scoreboard manually. 
-5. Admin will have 10 senconds between each hand (turn).
-
-Note that if game demand "Hukam" then that should be monitered manually because game might have the "Hukam" or might not have the "Hukam" which can't be generalised.
+If the game type is judgement then after each game, admin has to select the total cards in that game. Eg. 1 card to each player or 2 cards to each player and so on.
 
 # Games that can be played
 
@@ -29,5 +22,3 @@ Note that if game demand "Hukam" then that should be monitered manually because 
 3. Declare
 4. Satiyu
 5. Kali tidi (Spade Of Three)
-
-All that games which demands distribution of FULL DECK OF CARDS among players or randomly selected cards among players can be played using this application.
