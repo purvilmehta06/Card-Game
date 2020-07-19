@@ -15,7 +15,6 @@ head
       h2 Players List
       h2#roomCode(style="display:none") #{roomCode}
       h2#admin(style="display:none") #{admin}
-      h2#gameType(style="display:none") #{gameType}
       hr
       ul#livedata.list-group
       .container
@@ -35,22 +34,23 @@ head
       hr
       if(admin)
         .container
-          input.form-control(style="width:200px" id="hands" type='number' placeholder='Enter total cards in hand' min=1 required)
           button.btn.btn-success#start(type='submit' onclick="clearScoreboard()") Start New Game
           button.btn.btn-danger#end(type='submit' onclick="endGame()") End Game
           button.btn.btn-success#startSame(type='submit' onclick="start()") Start Game with same Scoreboard
-          button.btn.btn-success#doit(type='submit' onclick="doit()") Next 
           
       else
         h5#waitingMsg Please wait until admin starts the game
       
-      button.btn.btn-info#declare(style="position:absolute;bottom:20px;left:5%;" type='submit' onclick="declare()") Declare 
+      button.btn.btn-info#declare(style="position:absolute;bottom:20px;left:15%;" type='submit' onclick="declare()") Declare 
 
       #playCorner(style="position:absolute;bottom:320px;right:400px;")
+      .container#pointSection(style="position:absolute;bottom:20px;left:10px;width:120px")        
+        h6(style="text-align: center;") Points
+        h1#pointsLive(style="border:5px solid black;text-align: center;")
       #imgStack(style="position:absolute;bottom:20px;right:20px;")
-      
+      #snackbar
     script(src='/socket.io/socket.io.js')
-    script(src='/js/play.js')
+    script(src='/js/declare.js')
       
 
 

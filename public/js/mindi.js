@@ -258,7 +258,7 @@ socket.on('cardMsg',data=>{
         currentMax["card"] = getWeight(suit);
         currentMax["hukam"] =  true;
       }
-      else if(currentMax["hukam"] == false && suit[suitindex]!=hukam && currentMax["card"]<getWeight(suit)){
+      else if(currentMax["hukam"] == false && suit[suitindex]!=hukam && currentMax["card"]<getWeight(suit) && suit[suitindex]==currentMax["cardSuit"]){
         currentMax["player"] = data.username;
         currentMax["cardSuit"] = suit[suitindex];
         currentMax["card"] = getWeight(suit);
@@ -311,9 +311,10 @@ function doit(){
     else
       document.getElementById('add'+currentMax.player).value = 1;
     send();
+    document.getElementById('add'+currentMax.player).value = '';
   }
   
-  document.getElementById('add'+currentMax.player).value = '';
+  
   
   if(totalCards == 0){
     socket.emit('clearAll');
@@ -323,7 +324,6 @@ function doit(){
   
   mindi=false;
   mindisuit = [];
-  turn = "";
   if(admin == "true")
     checkTurn();
   currentMax = {};
@@ -525,7 +525,7 @@ socket.on('mindiAccepted',data=>{
   }
 })
 
-socket.on('firstTurn',(card1,card2)=>{
+socket.on('firstTurn',(card1,card2,index)=>{
   var s;
   if(card1.weight>card2.weight){
     s = "Team A will start the game"
@@ -539,6 +539,6 @@ socket.on('firstTurn',(card1,card2)=>{
     title: s,
     html:"<div class=row><div class=col my-auto><img src='/images/"+card1.name+"' height=\"200px\" width=\"150px\"></div><div class=col my-auto><img src='/images/"+card2.name+"' height=\"200px\" width=\"150px\"></div></div>  <br> <div class=row><div class=col my-auto>Team A</div><div class=col my-auto>Team B</div></div>",
   });
-  
-  socket.emit('turn',turn,true)
+  if(admin=='true')
+    socket.emit('turn',turn,true)
 })

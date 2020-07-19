@@ -67,8 +67,10 @@ app.get('/:id',(req,res)=>{
       admin = false
     if(gameType[req.params.id] == 'MindiCoat')
       res.render('mindi',{roomCode: req.params.id,admin:admin});
-    else
+    else if(gameType[req.params.id]=='Judgement')
       res.render('play',{roomCode: req.params.id,admin:admin,gameType:gameType[req.params.id]});
+    else
+      res.render('declare',{roomCode: req.params.id,admin:admin});
   }
   else
     res.render('notfound');
@@ -99,7 +101,9 @@ io.on('connection',(socket=>{
     }
     while(card[0].weight == card[1].weight)
       shuffle(card);
-    io.in(socket.roomCode).emit('firstTurn', card[0],card[1]);
+
+    var index = Math.floor(Math.random() * sockets.length)
+    io.in(socket.roomCode).emit('firstTurn', card[0],card[1],index);
     for(i=0;i<5;++i)
       shuffle(card);
     var j=0;

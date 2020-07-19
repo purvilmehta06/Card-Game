@@ -1,20 +1,17 @@
 //Global Methods Declaration
 const roomCode = document.getElementById('roomCode').innerHTML
 const admin = document.getElementById('admin').innerHTML
-const gameType = document.getElementById('gameType').innerHTML
 var playCorner = document.getElementById('playCorner'); 
 if(admin=='true'){
-  document.getElementById('doit').style.visibility = 'hidden'
   document.getElementById('startSame').style.visibility = 'hidden'
   document.getElementById('start').disabled = true;
   document.getElementById('end').style.visibility = 'hidden';
 }
-if(gameType == 'Declare')
-  document.getElementById('hands').style.visibility = 'hidden'
+document.getElementById('pointSection').style.visibility = 'hidden'
 document.getElementById('declare').style.visibility = 'hidden';
 
 //Glabal Variables
-var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0,expectedCards;
+var turn,username,myrank,count = 0,totalCards=0,cardsCount = 0,unique = 0,expectedCards,currentMax={},localPoints=0;
 var declarePlayer;
 var playerNames = [];
 var counterSuit = [];
@@ -107,32 +104,23 @@ socket.on('player',playerList =>{
 
 //Start fuction (only for admin) to start the game
 function start(){
-  if(gameType == 'Declare')
-    document.getElementById('hands').value = Math.floor(52/playerNames.length);
-  if(!document.getElementById('hands').value || document.getElementById('hands').value*playerNames.length>52 || document.getElementById('hands').value<=0)
-    return;
+  
   document.getElementById('start').style.visibility = 'hidden'
   document.getElementById('startSame').style.visibility = 'hidden'
-  if(admin=='true')
-  {
-    document.getElementById('doit').style.visibility = 'visible'
-    document.getElementById('hands').style.visibility = 'hidden'
-    document.getElementById('end').style.visibility = 'visible';
-  }
+  document.getElementById('end').style.visibility = 'visible';
 
-  socket.emit('start',document.getElementById('hands').value);
-  
-  askTurn();
+  socket.emit('start',Math.floor(52/playerNames.length));
 }
 
 //This method will be called whenever cards are received.
 socket.on('sendData',(data,e)=>{
   expectedCards = e;
+  localPoints += (data.weight==14)?1:data.weight;
   if(admin == "false")
     document.getElementById('waitingMsg').style.visibility = 'hidden'
   
-  if(gameType == 'Declare')
-    document.getElementById('declare').style.visibility = 'visible';
+  
+  document.getElementById('declare').style.visibility = 'visible';
   var imgStack = document.getElementById('imgStack');
 
   counterSuit[data.suit]++;
@@ -148,6 +136,7 @@ socket.on('sendData',(data,e)=>{
   if (typeof window.addEventListener === 'function'){
     (function (_td) {
       td.addEventListener('click', function(){
+          console.log(turn,username);
           if(turn == username){
             let suit = _td.src.split("/").pop().split(".")[0];
             var suitIndex = suit.length - 1
@@ -163,17 +152,25 @@ socket.on('sendData',(data,e)=>{
             counterSuit[suit[suitIndex]]--;
           
             _td.style.visibility='hidden'
+            if(suit[0]=='A')
+              localPoints -= 1;
+            else 
+              localPoints -= getWeight(suit);
+            document.getElementById('pointsLive').innerHTML = localPoints
             turn = playerNames[(myrank+1)%(playerNames.length)];
             socket.emit('turn',turn,false);
-            socket.emit('card',_td.src);
+            socket.emit('card',_td.src,username);
           }
       });
     })(td);
   }
   ++unique;
   ++totalCards;
-  if(totalCards == expectedCards)
+  if(totalCards == expectedCards){
     setCards();
+    document.getElementById('pointsLive').innerHTML = localPoints
+    document.getElementById('pointSection').style.visibility = 'visible'
+  }
   cardsCount = totalCards;
 })
 
@@ -205,35 +202,24 @@ function setCards(){
   }
 }
 
-//Asking admin about the ne=xt hand first turn
-function askTurn(){
-  if(gameType == 'Declare')
-    socket.emit('toggle');
-  var inputOptions = {}
-  for(i=0;i<playerNames.length;++i){
-    inputOptions[playerNames[i]] = playerNames[i]  
-  }
-  (async () => {
-  const { value: color } = await Swal.fire({
-    title: 'Select Player for first turn',
-    input: 'radio',
-    allowOutsideClick: false,
-    inputOptions: playerNames,
-    inputValidator: (value) => {
-      if (!value) {
-        return 'You need to enter name!'
-      }
-    }
-  })
-  turn = playerNames[color] ;
-  
-  socket.emit('turn',turn,false)
-   })()
+function showToast(){
+  var x = document.getElementById('snackbar');
+  x.className = "show";
+  setTimeout(function(){
+    x.className = x.className.replace('show','');
+  },3000);
 }
 
 //Highlight player with the turn
-socket.on('msg',data=>{
+socket.on('msg',(data,toast)=>{
+  if(!data) 
+    return;
   turn = data;
+  if(toast){
+    document.getElementById('snackbar').innerHTML = turn +'\'s Turn';
+    showToast();
+    toggleDeclare();
+  }
   var name = document.getElementById(turn);
   for(i=0;i<playerNames.length;++i){
     document.getElementById(playerNames[i]).style.border = "none";
@@ -252,17 +238,51 @@ socket.on('cardMsg',data=>{
   elem.setAttribute('id','play'+count);
   document.getElementById('play'+count).style.margin = "0 0 0 "+ (-100)+"px";
   ++count;
-  
+  if(admin=='true'){
+    let suit = (data.data).split("/").pop().split(".")[0];
+    let suitindex = suit.length -1;
+    
+    if(count==1){
+      currentMax["player"] = data.username;
+      currentMax["cardSuit"] = suit[suitindex];
+      currentMax["card"] = getWeight(suit);
+    }
+    else{
+      if(currentMax["card"]<getWeight(suit) && suit[suitindex]==currentMax["cardSuit"]){
+        currentMax["player"] = data.username;
+        currentMax["cardSuit"] = suit[suitindex];
+        currentMax["card"] = getWeight(suit);
+      }
+    }
+  }
   if(count == data.maxCount){
     count = 0;
     turn = "";
-    if(gameType == 'Declare')
-      socket.emit('toggle');
+    document.getElementById('snackbar').innerHTML = "You now have 5 seconds to declare the game";
+    showToast();
+    toggleDeclare();
+    
     for(i=0;i<playerNames.length;++i){
       document.getElementById(playerNames[i]).style.border = "none";
     }
+    setTimeout(doit,5000);
   }
 })
+
+function getWeight(suit){
+  if(suit.length==3)
+    return 10;
+  else if(suit[0]=='A')
+    return 14;
+  else if(suit[0]=='K')
+    return 13;
+  else if(suit[0]=='Q')
+    return 12;
+  else if(suit[0]=='J')
+    return 11;
+  else
+    return parseInt(suit[0]);
+}
 
 //Clears the table
 socket.on('clearBoard',()=>{
@@ -275,16 +295,19 @@ function doit(){
   --totalCards;
   count = 0;
   if(totalCards == 0){
-    clearEverything();
     socket.emit('clearAll');
     return;
   }
   socket.emit('clear');
-  turn = "";
   if(admin == "true") 
-    askTurn();
+    checkTurn();
+  currentMax = {};
 }
 
+function checkTurn(){
+  turn = currentMax.player;
+  socket.emit('turn',turn,true)
+}
 //Clear all boards - initialising to base values
 function clearEverything(){
   while (playCorner.hasChildNodes())  
@@ -309,15 +332,16 @@ function clearEverything(){
     'C':[],
     'H':[]
   }
+  currentMax = {};
+  localPoints = 0;
 
   if(admin=='true'){
     document.getElementById('start').style.visibility = 'visible'
-    document.getElementById('doit').style.visibility = 'hidden'
     document.getElementById('startSame').style.visibility = 'visible'
     document.getElementById('end').style.visibility = 'hidden';
   }
-  if(gameType == 'Declare')
-    document.getElementById('declare').style.visibility = 'hidden';
+  document.getElementById('pointSection').style.visibility = 'hidden';
+  document.getElementById('declare').style.visibility = 'hidden';
 }
 
 //Send scoreboard
@@ -421,8 +445,12 @@ socket.on('declarePoints',data=>{
       title: 'Scores!',
       html: s,
     })
-    if(admin=='true')
+    if(admin=='true'){
       document.getElementById('send').click();
+      for(i=0;i<playerNames.length;++i){
+        document.getElementById('add'+playerNames[i]).value = "";
+      }
+    }
     declareScore = {}
   }
 })
@@ -434,3 +462,15 @@ socket.on('toggleDeclare',()=>{
 function toggleDeclare(){
   document.getElementById('declare').disabled = !document.getElementById('declare').disabled;
 }
+
+
+socket.on('firstTurn',(card1,card2,index)=>{
+  swal.fire({
+    title: "First Turn Selection",
+    html:"<h4>"+ playerNames[index] +" is selected for the first turn!! </h4> ",
+  });
+  if (admin=='true'){
+    turn = playerNames[index];
+    socket.emit('turn',turn,true)
+  }
+})
