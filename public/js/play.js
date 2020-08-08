@@ -315,6 +315,7 @@ function clearEverything(){
     document.getElementById('doit').style.visibility = 'hidden'
     document.getElementById('startSame').style.visibility = 'visible'
     document.getElementById('end').style.visibility = 'hidden';
+    document.getElementById('hands').style.visibility = 'visible';
   }
   if(gameType == 'Declare')
     document.getElementById('declare').style.visibility = 'hidden';
